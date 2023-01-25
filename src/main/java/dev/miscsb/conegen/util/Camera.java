@@ -23,9 +23,12 @@ public class Camera {
             Geo3DUtil.pointSubtract(worldCoordinates, pinhole), 
             Quaternion.scale(orientation, -1));
         double factor = surface.z/cameraCoordinates.z;
-        return new Point2D(
+        return (cameraCoordinates.z > 0) ? new Point2D(
             factor * cameraCoordinates.x + surface.x,
             factor * cameraCoordinates.y + surface.y
+        ) : new Point2D(
+            -factor * cameraCoordinates.x + surface.x,
+            -factor * cameraCoordinates.y + surface.y
         );
     }
 }

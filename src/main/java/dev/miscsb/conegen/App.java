@@ -57,10 +57,10 @@ public class App extends JFrame {
 
         public Board() {
             initBoard();
-            this.camera = new Camera(new Point3D(0, 20, 0), -5, QuaternionUtil.axisAngleToQuaternion(0, 0, 0, 1));
+            this.camera = new Camera(new Point3D(0, 0, 10), -5, QuaternionUtil.axisAngleToQuaternion(0.2, 0, 1, 0));
 
             this.cubeController = new CubeController(10);
-            this.cubeController.setTransformation(new Translation(0, 0, 50));
+            this.cubeController.setTransformation(new Translation(0, 0, 0));
             this.cubeController.applyAll();
 
             // Quaternion rq1 = QuaternionUtil.getRotationQuaternion(Math.PI / 128, MatrixUtil.toUnitVector(0, 0, 1));
@@ -70,7 +70,7 @@ public class App extends JFrame {
 
             cubeController.setTransformation(new Translation(0, 0, 0));
 
-            double d = 100;
+            double d = 5;
 
             this.axes = new PointGroup(
                 new Point3D[] {
@@ -153,7 +153,7 @@ public class App extends JFrame {
                 case '=':
                     camera.pinhole.y += step; break;
             }
-            System.out.println(camera.pinhole);
+            System.out.println(camera.projectPoint(new Point3D(0, 0, -100)));
         }
 
         @Override
