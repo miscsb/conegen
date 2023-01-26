@@ -185,8 +185,25 @@ public class MatrixUtil {
      * @param u the vector
      * @return the length of the vector
      */
-    public static double length(double[] u) {
+    public static double length(double... u) {
         return Math.sqrt(lengthSquared(u));
+    }
+
+    public static boolean colinear(double[] v1, double[] v2) {
+        if (v1.length != v2.length) return false;
+        double factor = Double.NaN;
+        boolean multiplierFound = false;
+        for (int i = 0; i < v1.length; i++) {
+            if (Math.abs(v2[i]) < 1E-6) {
+                if (Math.abs(v1[i]) > 1E-6) return false;
+            } else if (!multiplierFound) {
+                factor = v2[i] / v1[i];
+                multiplierFound = true;
+            } else {
+                if (Math.abs(v2[i] - factor * v1[i]) > 1E-6) return false;
+            }
+        }
+        return true;
     }
 
     /**

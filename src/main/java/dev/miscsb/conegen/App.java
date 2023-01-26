@@ -130,9 +130,9 @@ public class App extends JFrame {
                 case KeyEvent.VK_DOWN: 
                     camera.pinhole.z -= step; break;
                 case 'i': case 'I':
-                    camera.pinhole.y -= step; break;
-                case 'k': case 'K':
                     camera.pinhole.y += step; break;
+                case 'k': case 'K':
+                    camera.pinhole.y -= step; break;
                 case '-': case '_':
                     camera.focalLength += step*0.1; break;
                 case '=': case '+':
