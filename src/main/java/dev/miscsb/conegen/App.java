@@ -11,7 +11,6 @@ import java.awt.event.*;
 import dev.miscsb.conegen.controller.*;
 import dev.miscsb.conegen.transformations.*;
 import dev.miscsb.conegen.util.Camera;
-import dev.miscsb.conegen.util.MatrixUtil;
 import dev.miscsb.conegen.util.Point2D;
 import dev.miscsb.conegen.util.Point3D;
 import dev.miscsb.conegen.util.Quaternion;
@@ -47,52 +46,27 @@ public class App extends JFrame {
         private Timer timer;
 
         private CubeController cubeController;
+        private PointGroupController[] axes;
+        private List<PointGroupController> groups;
         private Camera camera;
-
-        private List<ShapeController> groups;
-
-        private PointGroup axes;
 
         private static final double FACTOR = 100d;
 
         public Board() {
             initBoard();
-            this.camera = new Camera(new Point3D(0, 0, 10), -5, QuaternionUtil.axisAngleToQuaternion(0.2, 0, 1, 0));
+            this.camera = new Camera(new Point3D(10, 10, -20), -5, QuaternionUtil.axisAngleToQuaternion(0, 0, 1, 0));
 
-            this.cubeController = new CubeController(10);
-            this.cubeController.setTransformation(new Translation(0, 0, 0));
-            this.cubeController.applyAll();
-
-            // Quaternion rq1 = QuaternionUtil.getRotationQuaternion(Math.PI / 128, MatrixUtil.toUnitVector(0, 0, 1));
-            // Transformation r = new Rotation(rq1).about(cubeController.getCenter());
-            // Transformation transl = new Translation(0, 0, 10);
-            // cubeController.setTransformation(r);
-
-            cubeController.setTransformation(new Translation(0, 0, 0));
-
+            this.cubeController = new CubeController(10, Color.WHITE);
             double d = 5;
-
-            this.axes = new PointGroup(
-                new Point3D[] {
-                    new Point3D(-d, 0, 0),
-                    new Point3D(d, 0, 0),
-                    new Point3D(0, -d, 0),
-                    new Point3D(0, d, 0),
-                    new Point3D(0, 0, -d),
-                    new Point3D(0, 0, d)
-                },
-                new int[][] {
-                    {0, 1},
-                    {2, 3},
-                    {4, 5}
-                },
-                new Point3D(0, 0, 0)
-            );
-            this.axes.setColor(Color.GREEN);
+            this.axes = new PointGroupController[] {
+                new LineController(Point3D.ORIGIN, new Point3D(d, 0, 0), Color.RED),
+                new LineController(Point3D.ORIGIN, new Point3D(0, d, 0), Color.GREEN),
+                new LineController(Point3D.ORIGIN, new Point3D(0, 0, d), Color.BLUE)
+            };
 
             groups = new ArrayList<>();
             groups.add(this.cubeController);
-            groups.add(this.axes);
+            groups.addAll(List.of(this.axes));
         }
 
         private void initBoard() {
@@ -108,13 +82,14 @@ public class App extends JFrame {
         @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
+            drawCameraPosition(g);
             drawGroups(g);
         }
 
         private void drawGroups(Graphics g) {
             Toolkit.getDefaultToolkit().sync();
             g.setColor(Color.WHITE);
-            for (ShapeController shape : this.groups) {
+            for (PointGroupController shape : this.groups) {
                 g.setColor(shape.getColor());
                 List<Point2D> points = Arrays.stream(shape.getPoints()).map(camera::projectPoint).map(this::adjust).toList();
                 Arrays.stream(shape.getEdges()).forEach(arr -> {
@@ -122,6 +97,12 @@ public class App extends JFrame {
                     g.drawLine((int) p1.x, (int) p1.y, (int) p2.x, (int) p2.y);
                 });
             }
+        }
+
+        private void drawCameraPosition(Graphics g) {
+            Toolkit.getDefaultToolkit().sync();
+            g.setColor(Color.WHITE);
+            g.drawString(camera.toString(), 10, 20);
         }
 
         private Point2D adjust(Point2D point) {
@@ -132,7 +113,7 @@ public class App extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            this.cubeController.applyAll();
+            groups.forEach(PointGroupController::applyAll);
             repaint();
         }
 
@@ -148,12 +129,15 @@ public class App extends JFrame {
                     camera.pinhole.z += step; break;
                 case KeyEvent.VK_DOWN: 
                     camera.pinhole.z -= step; break;
-                case '-':
+                case 'i': case 'I':
                     camera.pinhole.y -= step; break;
-                case '=':
+                case 'k': case 'K':
                     camera.pinhole.y += step; break;
+                case '-': case '_':
+                    camera.focalLength += step*0.1; break;
+                case '=': case '+':
+                    camera.focalLength -= step*0.1; break;
             }
-            System.out.println(camera.projectPoint(new Point3D(0, 0, -100)));
         }
 
         @Override

@@ -48,7 +48,7 @@ public class Quaternion {
      */
     @Override
     public String toString() {
-        return String.format("%f + %fi + %fj + %fk", 
+        return String.format("%.3f+%.3fi+%.3fj+%.3fk", 
             this.scalar, 
             this.vector[0], 
             this.vector[1], 

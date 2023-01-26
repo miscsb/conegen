@@ -5,6 +5,9 @@ package dev.miscsb.conegen.util;
  * @author antimony
  */
 public class Point3D {
+
+    public static final Point3D ORIGIN = new Point3D(0, 0, 0);
+
     public double x, y, z;
 
     /**
@@ -32,6 +35,6 @@ public class Point3D {
     }
 
     public String toString() {
-        return String.format("(%f, %f, %f)", this.x, this.y, this.z);
+        return String.format("(%.3f, %.3f, %.3f)", this.x, this.y, this.z);
     }
 }

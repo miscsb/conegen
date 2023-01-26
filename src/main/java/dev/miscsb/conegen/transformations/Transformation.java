@@ -1,6 +1,5 @@
 package dev.miscsb.conegen.transformations;
 
-import dev.miscsb.conegen.controller.ShapeController;
 import dev.miscsb.conegen.util.MatrixUtil;
 import dev.miscsb.conegen.util.Point3D;
 
@@ -52,9 +51,5 @@ public abstract class Transformation {
         return new Translation(reverseVector)
                     .then(this)
                     .then(new Translation(forwardVector));
-    }
-
-    public Transformation aboutCenter(ShapeController shape) {
-        return about(shape.getCenter());
     }
 }

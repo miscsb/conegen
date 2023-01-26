@@ -5,6 +5,9 @@ package dev.miscsb.conegen.util;
  * @author antimony
  */
 public class Point2D {
+
+    public static final Point2D ORIGIN = new Point2D(0, 0);
+
     public double x, y;
 
     /**
@@ -30,6 +33,6 @@ public class Point2D {
 
     @Override
     public String toString() {
-        return String.format("(%f, %f)", this.x, this.y);
+        return String.format("(%.3f, %.3f)", this.x, this.y);
     }
 }
