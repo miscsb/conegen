@@ -45,8 +45,6 @@ public class App extends JFrame {
 
         private Timer timer;
 
-        private CubeController cubeController;
-        private PointGroupController[] axes;
         private List<PointGroupController> groups;
         private Camera camera;
 
@@ -56,17 +54,21 @@ public class App extends JFrame {
             initBoard();
             this.camera = new Camera(new Point3D(10, 10, -20), -5, QuaternionUtil.axisAngleToQuaternion(0, 0, 1, 0));
 
-            this.cubeController = new CubeController(10, Color.WHITE);
+            CubeController cubeController = new CubeController(10, Color.WHITE);
+
             double d = 5;
-            this.axes = new PointGroupController[] {
+            PointGroupController[] axes = new PointGroupController[] {
                 new LineController(Point3D.ORIGIN, new Point3D(d, 0, 0), Color.RED),
                 new LineController(Point3D.ORIGIN, new Point3D(0, d, 0), Color.GREEN),
                 new LineController(Point3D.ORIGIN, new Point3D(0, 0, d), Color.BLUE)
             };
 
+            CircleController circleController = new CircleController(10, new double[] {1, 1, 1}, 32, Color.BLUE);
+
             groups = new ArrayList<>();
-            groups.add(this.cubeController);
-            groups.addAll(List.of(this.axes));
+            groups.add(cubeController);
+            groups.add(circleController);
+            groups.addAll(List.of(axes));
         }
 
         private void initBoard() {

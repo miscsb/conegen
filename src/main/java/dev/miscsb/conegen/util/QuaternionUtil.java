@@ -45,6 +45,7 @@ public class QuaternionUtil {
         rotated = MatrixUtil.toUnitVector(rotated);
         double[] cross = MatrixUtil.vectorCrossProduct(rotated, original);
         double angle = Math.asin(MatrixUtil.length(cross));
+        if (Math.abs(angle) < 1E-6) return new Quaternion(0, 1, 0, 0);
         return QuaternionUtil.getRotationQuaternion(angle, cross);
     }
 
@@ -71,11 +72,11 @@ public class QuaternionUtil {
      * @return the transformed vector
      */
     public static double[] applyRotationQuaternion(double[] p, Quaternion q) {
-        Quaternion qp = Quaternion.normalized(Quaternion.multiply(
+        Quaternion qp = Quaternion.multiply(
             Quaternion.inverse(q),
             new Quaternion(0, p),
             q
-        ));
+        );
         return new double[] {qp.get(1), qp.get(2), qp.get(3)};
     }
 
@@ -85,7 +86,7 @@ public class QuaternionUtil {
      * @return the extracted point
      */
     public static Point3D extractCoordinates(Quaternion q) {
-        q = Quaternion.normalized(q);
+        // q = Quaternion.normalized(q);
         return new Point3D(
             q.get(1),
             q.get(2),

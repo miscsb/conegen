@@ -32,4 +32,11 @@ public class GeoTest {
         }
     }
 
+    @Test
+    public void unitVectorRotation() {
+        double[] vec1 = new double[] { 1, 0, 0 };
+        double[] vec2 = new double[] { 0, 1, 0 };
+        System.out.println(QuaternionUtil.getRotationQuaternion(vec1, vec2));
+    }
+
 }
