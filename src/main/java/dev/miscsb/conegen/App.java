@@ -8,9 +8,9 @@ import java.awt.*;
 import java.awt.event.*;
 
 import dev.miscsb.conegen.controller.*;
+import dev.miscsb.conegen.transformations.Translation;
 import dev.miscsb.conegen.util.Camera;
 import dev.miscsb.conegen.util.Point3D;
-import dev.miscsb.conegen.util.Quaternion;
 import dev.miscsb.conegen.util.QuaternionUtil;
 
 public class App extends JFrame {
@@ -45,13 +45,9 @@ public class App extends JFrame {
         private List<PointGroupController> groups;
         private Camera camera;
 
-        private int factor = 128;
-
         public Board() {
             initBoard();
-            this.camera = new Camera(new Point3D(0, 0, -25), Quaternion.IDENTITY, 1);
-
-            CubeController cubeController = new CubeController(10, Color.WHITE);
+            this.camera = new Camera(new Point3D(0, 0, -15), QuaternionUtil.yawPitchRollToQuaternion(yaw, pitch, roll), 200);
 
             double d = 5;
             List<PointGroupController> axes = List.of(
@@ -60,11 +56,27 @@ public class App extends JFrame {
                 new LineController(Point3D.ORIGIN, new Point3D(0, 0, d), Color.BLUE)
             );
 
-            CircleController circleController = new CircleController(10, new double[] {1, 1, 1}, 32, Color.BLUE);
+            double bottomRadius = 2;
+            double topRadius = 0.2;
+
+            double baseLength = 3;
+            double baseHeight = 0.2;
+            double coneHeight = 8;
+
+            double[] normal = new double[] { 0, 1, 0 };
+            int numEdges = 20;
+
+            CircleController circleBottom = new CircleController(bottomRadius, normal, numEdges, Color.YELLOW);
+            CircleController circleTop = new CircleController(topRadius, normal, numEdges, Color.YELLOW);
+            CubeController base = new CubeController(baseLength, baseHeight, baseLength, Color.YELLOW);
+
+            circleBottom.applyAll(new Translation(0, baseHeight, 0));
+            circleTop.applyAll(new Translation(0, coneHeight, 0));
 
             groups = new ArrayList<>();
-            groups.add(cubeController);
-            groups.add(circleController);
+            groups.add(circleBottom);
+            groups.add(circleTop);
+            groups.add(base);
             groups.addAll(axes);
         }
 
@@ -92,10 +104,10 @@ public class App extends JFrame {
                 g.setColor(shape.getColor());
                 for (double[] line : camera.projectLines(shape.getPoints(), shape.getEdges())) {
                     g.drawLine(
-                        (int) (factor * line[0]) + W_WIDTH / 2,
-                        (int) (factor * line[1]) + W_HEIGHT / 2,
-                        (int) (factor * line[2]) + W_WIDTH / 2,
-                        (int) (factor * line[3]) + W_HEIGHT / 2);
+                        (int) (line[0]) + W_WIDTH / 2,
+                        (int) (line[1]) + W_HEIGHT / 2,
+                        (int) (line[2]) + W_WIDTH / 2,
+                        (int) (line[3]) + W_HEIGHT / 2);
                 }
             }
         }
@@ -130,9 +142,9 @@ public class App extends JFrame {
                 case 'k': case 'K':
                     camera.pinhole.y -= step; break;
                 case '-': case '_':
-                    camera.focalLength += step*0.1; break;
-                case '=': case '+':
                     camera.focalLength -= step*0.1; break;
+                case '=': case '+':
+                    camera.focalLength += step*0.1; break;
 
                 case 'a': case 'A': yaw += step*0.1; break;
                 case 'd': case 'D': yaw -= step*0.1; break;

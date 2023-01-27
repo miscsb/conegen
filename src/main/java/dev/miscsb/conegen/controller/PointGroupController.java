@@ -45,14 +45,14 @@ public class PointGroupController {
 
     public void applyAll() {
         if (this.transformation == null) return;
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < this.points.length; i++) {
             this.points[i] = this.transformation.transform(this.points[i]);
         }
     }
 
     public void applyAll(Transformation transformation) {
         if (transformation == null) return;
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < this.points.length; i++) {
             this.points[i] = transformation.transform(this.points[i]);
         }
     }

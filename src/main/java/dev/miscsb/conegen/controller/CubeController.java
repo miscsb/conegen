@@ -21,15 +21,19 @@ public class CubeController extends PointGroupController {
     };
 
     public CubeController(double d, Color color) {
+        this(d, d, d, color);
+    }
+
+    public CubeController(double a, double b, double c, Color color) {
         super(new Point3D[] {
-            new Point3D(-d, -d, d),
-            new Point3D(d, -d, d),
-            new Point3D(d, -d, -d),
-            new Point3D(-d, -d, -d),
-            new Point3D(-d, d, d),
-            new Point3D(d, d, d),
-            new Point3D(d, d, -d),
-            new Point3D(-d, d, -d)
+            new Point3D(-a, -b, c),
+            new Point3D(a, -b, c),
+            new Point3D(a, -b, -c),
+            new Point3D(-a, -b, -c),
+            new Point3D(-a, b, c),
+            new Point3D(a, b, c),
+            new Point3D(a, b, -c),
+            new Point3D(-a, b, -c),
         }, EDGES, color);
     }
     
