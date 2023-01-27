@@ -44,4 +44,8 @@ public class Geo3DUtil {
         if (d == 0) return (y > 0) ? Math.PI / 2 : -Math.PI / 2;
         return Math.atan(y/d);
     }
+
+    public static Point3D pointScale(Point3D p, double k) {
+        return new Point3D(k * p.x, k * p.y, k * p.z);
+    }
 }

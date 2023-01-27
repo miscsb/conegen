@@ -49,6 +49,14 @@ public class QuaternionUtil {
         return QuaternionUtil.getRotationQuaternion(angle, cross);
     }
 
+    public static Quaternion yawPitchRollToQuaternion(double yaw, double pitch, double roll) {
+        return Quaternion.multiply( // note that rotation by a, b, then c is equivalent to rotation by cba.
+            axisAngleToQuaternion(yaw,   0, 1, 0),
+            axisAngleToQuaternion(pitch,-1, 0, 0),
+            axisAngleToQuaternion(roll,  0, 0, 1)
+        );
+    }
+
     /**
      * Applies a rotation quaternion (active rotation) to a point.
      * @param p the point to rotate

@@ -1,7 +1,6 @@
 package dev.miscsb.conegen;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.*;
@@ -9,9 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import dev.miscsb.conegen.controller.*;
-import dev.miscsb.conegen.transformations.*;
 import dev.miscsb.conegen.util.Camera;
-import dev.miscsb.conegen.util.Point2D;
 import dev.miscsb.conegen.util.Point3D;
 import dev.miscsb.conegen.util.Quaternion;
 import dev.miscsb.conegen.util.QuaternionUtil;
@@ -48,27 +45,27 @@ public class App extends JFrame {
         private List<PointGroupController> groups;
         private Camera camera;
 
-        private static final double FACTOR = 100d;
+        private int factor = 128;
 
         public Board() {
             initBoard();
-            this.camera = new Camera(new Point3D(10, 10, -20), -5, QuaternionUtil.axisAngleToQuaternion(0, 0, 1, 0));
+            this.camera = new Camera(new Point3D(0, 0, -25), Quaternion.IDENTITY, 1);
 
             CubeController cubeController = new CubeController(10, Color.WHITE);
 
             double d = 5;
-            PointGroupController[] axes = new PointGroupController[] {
+            List<PointGroupController> axes = List.of(
                 new LineController(Point3D.ORIGIN, new Point3D(d, 0, 0), Color.RED),
                 new LineController(Point3D.ORIGIN, new Point3D(0, d, 0), Color.GREEN),
                 new LineController(Point3D.ORIGIN, new Point3D(0, 0, d), Color.BLUE)
-            };
+            );
 
             CircleController circleController = new CircleController(10, new double[] {1, 1, 1}, 32, Color.BLUE);
 
             groups = new ArrayList<>();
             groups.add(cubeController);
             groups.add(circleController);
-            groups.addAll(List.of(axes));
+            groups.addAll(axes);
         }
 
         private void initBoard() {
@@ -93,11 +90,13 @@ public class App extends JFrame {
             g.setColor(Color.WHITE);
             for (PointGroupController shape : this.groups) {
                 g.setColor(shape.getColor());
-                List<Point2D> points = Arrays.stream(shape.getPoints()).map(camera::projectPoint).map(this::adjust).toList();
-                Arrays.stream(shape.getEdges()).forEach(arr -> {
-                    Point2D p1 = points.get(arr[0]), p2 = points.get(arr[1]);
-                    g.drawLine((int) p1.x, (int) p1.y, (int) p2.x, (int) p2.y);
-                });
+                for (double[] line : camera.projectLines(shape.getPoints(), shape.getEdges())) {
+                    g.drawLine(
+                        (int) (factor * line[0]) + W_WIDTH / 2,
+                        (int) (factor * line[1]) + W_HEIGHT / 2,
+                        (int) (factor * line[2]) + W_WIDTH / 2,
+                        (int) (factor * line[3]) + W_HEIGHT / 2);
+                }
             }
         }
 
@@ -107,26 +106,21 @@ public class App extends JFrame {
             g.drawString(camera.toString(), 10, 20);
         }
 
-        private Point2D adjust(Point2D point) {
-            return new Point2D(
-                (int) (FACTOR * point.x) + W_WIDTH / 2, 
-                (int) (FACTOR * point.y) + W_HEIGHT / 2);
-        }
-
         @Override
         public void actionPerformed(ActionEvent e) {
             groups.forEach(PointGroupController::applyAll);
             repaint();
         }
 
+        private double yaw = 0, pitch = 0, roll = Math.PI;
         @Override
         public void keyPressed(KeyEvent e) {
             double step = e.isShiftDown() ? 5.0 : 1.0;
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_LEFT: 
-                    camera.pinhole.x += step; break;
-                case KeyEvent.VK_RIGHT: 
                     camera.pinhole.x -= step; break;
+                case KeyEvent.VK_RIGHT: 
+                    camera.pinhole.x += step; break;
                 case KeyEvent.VK_UP: 
                     camera.pinhole.z += step; break;
                 case KeyEvent.VK_DOWN: 
@@ -139,7 +133,13 @@ public class App extends JFrame {
                     camera.focalLength += step*0.1; break;
                 case '=': case '+':
                     camera.focalLength -= step*0.1; break;
+
+                case 'a': case 'A': yaw += step*0.1; break;
+                case 'd': case 'D': yaw -= step*0.1; break;
+                case 'w': case 'W': pitch += step*0.1; break;
+                case 's': case 'S': pitch -= step*0.1; break;
             }
+            camera.orientation = QuaternionUtil.yawPitchRollToQuaternion(yaw, pitch, roll);
         }
 
         @Override
