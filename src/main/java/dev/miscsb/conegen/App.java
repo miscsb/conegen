@@ -1,7 +1,8 @@
 package dev.miscsb.conegen;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.*;
 import java.awt.*;
@@ -42,7 +43,7 @@ public class App extends JFrame {
 
         private Timer timer;
 
-        private List<PointGroupController> groups;
+        private Map<PointGroup, Color> groups;
         private Camera camera;
 
         public Board() {
@@ -50,10 +51,10 @@ public class App extends JFrame {
             this.camera = new Camera(new Point3D(0, 0, -15), QuaternionUtil.yawPitchRollToQuaternion(yaw, pitch, roll), 200);
 
             double d = 5;
-            List<PointGroupController> axes = List.of(
-                new LineController(Point3D.ORIGIN, new Point3D(d, 0, 0), Color.RED),
-                new LineController(Point3D.ORIGIN, new Point3D(0, d, 0), Color.GREEN),
-                new LineController(Point3D.ORIGIN, new Point3D(0, 0, d), Color.BLUE)
+            var axes = Map.ofEntries(
+                Map.entry(PointGroups.line(Point3D.ORIGIN, new Point3D(d, 0, 0)), Color.RED),
+                Map.entry(PointGroups.line(Point3D.ORIGIN, new Point3D(0, d, 0)), Color.GREEN),
+                Map.entry(PointGroups.line(Point3D.ORIGIN, new Point3D(0, 0, d)), Color.BLUE)
             );
 
             double bottomRadius = 2;
@@ -66,18 +67,16 @@ public class App extends JFrame {
             double[] normal = new double[] { 0, 1, 0 };
             int numEdges = 20;
 
-            CircleController circleBottom = new CircleController(bottomRadius, normal, numEdges, Color.YELLOW);
-            CircleController circleTop = new CircleController(topRadius, normal, numEdges, Color.YELLOW);
-            CubeController base = new CubeController(baseLength, baseHeight, baseLength, Color.YELLOW);
+            PointGroup cone = PointGroups.compose(
+                List.of(
+                    PointGroups.circle(bottomRadius, normal, numEdges).transformed(new Translation(0, baseHeight, 0)),
+                    PointGroups.circle(topRadius, normal, numEdges).transformed(new Translation(0, coneHeight, 0)),
+                    PointGroups.rectangularPrism(baseLength, baseHeight, baseLength)
+                ), List.of());
 
-            circleBottom.applyAll(new Translation(0, baseHeight, 0));
-            circleTop.applyAll(new Translation(0, coneHeight, 0));
-
-            groups = new ArrayList<>();
-            groups.add(circleBottom);
-            groups.add(circleTop);
-            groups.add(base);
-            groups.addAll(axes);
+            groups = new HashMap<>();
+            groups.put(cone, Color.YELLOW);
+            groups.putAll(axes);
         }
 
         private void initBoard() {
@@ -100,9 +99,10 @@ public class App extends JFrame {
         private void drawGroups(Graphics g) {
             Toolkit.getDefaultToolkit().sync();
             g.setColor(Color.WHITE);
-            for (PointGroupController shape : this.groups) {
-                g.setColor(shape.getColor());
-                for (double[] line : camera.projectLines(shape.getPoints(), shape.getEdges())) {
+            for (var entry : this.groups.entrySet()) {
+                PointGroup shape = entry.getKey();
+                g.setColor(entry.getValue());
+                for (double[] line : camera.projectLines(shape.getVertices(), shape.getEdges())) {
                     g.drawLine(
                         (int) (line[0]) + W_WIDTH / 2,
                         (int) (line[1]) + W_HEIGHT / 2,
@@ -120,7 +120,6 @@ public class App extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            groups.forEach(PointGroupController::applyAll);
             repaint();
         }
 

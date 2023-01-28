@@ -1,7 +1,6 @@
 package dev.miscsb.conegen.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Camera {
@@ -35,8 +34,8 @@ public class Camera {
      * @param worldCoordinates
      * @return
      */
-    public List<double[]> projectLines(Point3D[] worldCoordinates, int[][] edges) {
-        List<Point3D> cameraCoordinates = Arrays.stream(worldCoordinates)
+    public List<double[]> projectLines(List<Point3D> worldCoordinates, List<int[]> edges) {
+        List<Point3D> cameraCoordinates = worldCoordinates.stream()
             .map(wcd -> Geo3DUtil.pointSubtract(wcd, pinhole))
             .map(wcd -> QuaternionUtil.applyRotationQuaternion(wcd, Quaternion.inverse(orientation)))
             .toList();

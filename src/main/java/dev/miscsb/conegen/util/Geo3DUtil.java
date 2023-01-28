@@ -1,6 +1,18 @@
 package dev.miscsb.conegen.util;
 
+import java.util.List;
+
 public class Geo3DUtil {
+    public static Point3D average(List<Point3D> points) {
+        double x = 0, y = 0, z = 0;
+        for (Point3D point : points) {
+            x += point.x;
+            y += point.y;
+            z += point.z;
+        }
+        return new Point3D(x / points.size(), y / points.size(), z / points.size());
+    }
+
     public static double[] directionVector(Point3D anchor, Point3D tip) {
         return MatrixUtil.vectorSubtract(tip.toArray(), anchor.toArray());
     }
