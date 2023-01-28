@@ -35,13 +35,11 @@ public class PointGroup {
         for (int i = 0; i < this.vertices.size(); i++) {
             this.vertices.set(i, transformation.transform(this.vertices.get(i)));
         }
+        this.center = transformation.transform(this.center);
     }
 
     public void transformAboutCenter(Transformation transformation) {
-        transformation = transformation.about(this.center);
-        for (int i = 0; i < this.vertices.size(); i++) {
-            this.vertices.set(i, transformation.about(this.center).transform(this.vertices.get(i)));
-        }
+        transform(transformation.about(this.center));
     }
 
     public PointGroup transformed(Transformation transformation) {
